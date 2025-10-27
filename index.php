@@ -23,7 +23,7 @@ require_once 'includes/functions.php';
 <h1>Vítejte na domovské stránce!</h1>
 <p>Stránka domů, kde můžeš zobrazit základní obsah.</p>
 
-<?php //include('includes/db.php'); ?>
+<?php include('includes/db.php'); ?>
 
 
 <!-- Formulář pro nahrání PDF -->

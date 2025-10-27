@@ -1,239 +1,26 @@
-/* === ZÁKLADNÍ NASTAVENÍ === */
 body {
-    font-family: "Segoe UI", Roboto, sans-serif;
-    margin: 0;
-    background: #f7f7f7;
-    color: #222;
+    font-family: sans-serif;
+    margin: 40px;
 }
 
-/* === NAVIGACE (HORNÍ MENU) === */
-nav {
-    background: #ffffff;
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    padding: 0 40px;
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-nav ul {
+ul {
     list-style-type: none;
-    margin: 0;
-    padding: 0;
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    height: 60px;
 }
 
-nav li {
-    display: inline-block;
+ul ul {
+    margin-left: 20px;
 }
 
-nav a {
+a {
+    color: #0066cc;
     text-decoration: none;
-    color: #333;
-    font-size: 16px;
-    font-weight: 500;
-    transition: color 0.2s, transform 0.15s, background 0.15s;
-    padding: 10px 12px;
-    border-radius: 4px;
 }
 
-nav a:hover {
-    color: #0066cc;
-    background-color: #f0f0f0;
-    transform: translateY(-1px);
+a:hover {
+    text-decoration: underline;
 }
 
-nav li.active a {
-    color: #0066cc;
-    font-weight: 600;
-    background-color: #e6f0ff;
-}
-
-/* === ODDĚLENÍ MENU OD OBSAHU === */
-header,
-nav {
-    border-bottom: 1px solid #e0e0e0;
-}
-
-/* === HLAVNÍ OBSAH POD MENU === */
-main {
-    display: flex;
-    align-items: stretch;
-    gap: 20px;
-    padding: 20px;
-    height: calc(100vh - 90px);
-    box-sizing: border-box;
-}
-
-/* === LEVÝ PANEL – STROM PDF === */
-#fileTree {
-    width: 30%;
-    max-width: 350px;
-    background: #fff;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-    overflow-y: auto;
-    font-size: 15px;
-    box-sizing: border-box;
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
-}
-
-/* === HLAVIČKA STROMU – ŘAZENÍ === */
-.file-sort {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    font-weight: 600;
-    font-size: 14px;
-}
-
-.sort-column {
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    cursor: pointer;
-    user-select: none;
-}
-
-.sort-arrows {
-    display: flex;
-    flex-direction: column;
-    font-size: 10px;
-    line-height: 10px;
-}
-
-.sort-arrows .asc,
-.sort-arrows .desc {
-    color: #ccc;
-    transition: color 0.2s;
-}
-
-.sort-column[data-order="asc"] .asc {
-    color: #0066cc;
-}
-
-.sort-column[data-order="desc"] .desc {
-    color: #0066cc;
-}
-
-/* === STROM PDF – STYLY OMEZENÉ NA .pdf-tree === */
-.pdf-tree {
-    list-style-type: none;
-    margin: 0;
-    padding: 0;
-}
-
-.pdf-tree ul {
-    margin-left: 12px;
-    border-left: 1px dashed #ccc;
-    padding-left: 8px;
-}
-
-.pdf-tree li {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 6px 8px;
-    border-bottom: 1px solid #f2f2f2;
-    transition: background 0.2s, color 0.2s;
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
-    cursor: pointer;
-    color: #222;
-    border-radius: 4px;
-}
-
-.pdf-tree li:hover {
-    background-color: #e6f0ff;
-    color: #0066cc;
-}
-
-.pdf-tree li strong {
-    cursor: pointer;
-    display: inline-block;
-    position: relative;
-    font-weight: 600;
-    color: #333;
-}
-
-.pdf-tree li strong::before {
-    content: "📁 ";
-    display: inline-block;
-    margin-right: 6px;
-    transition: transform 0.2s;
-    color: #888;
-}
-
-.pdf-tree li.open > strong::before {
-    transform: rotate(90deg);
-}
-
-.pdf-tree li ul {
-    display: none;
-}
-
-.pdf-tree li.open > ul {
-    display: block;
-}
-
-.pdf-tree li a {
-    text-decoration: none;
-    color: inherit;
-    flex: 1;
-}
-
-.pdf-tree li .file-date {
-    font-size: 12px;
-    color: #666;
-    white-space: nowrap;
-}
-
-/* === PRAVÝ PANEL – PDF NÁHLED === */
-#pdfContainer {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-}
-
-#pdfViewer {
-    flex: 1;
-    width: 100%;
-    height: 100%;
+iframe {
+    margin-top: 20px;
     border: 1px solid #ccc;
-    border-radius: 6px;
-    background: #fff;
-}
-
-/* === RESPONSIVITA === */
-@media (max-width: 768px) {
-    nav ul {
-        flex-direction: column;
-        gap: 10px;
-        height: auto;
-        padding: 10px 0;
-    }
-
-    main {
-        flex-direction: column;
-        padding: 20px;
-        height: auto;
-    }
-
-    #fileTree {
-        width: 100%;
-        max-width: none;
-        border-right: none;
-        border-bottom: 1px solid #ccc;
-        max-height: 300px;
-    }
-
-    #pdfViewer {
-        height: 70vh;
-    }
 }

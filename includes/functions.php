@@ -1,9 +1,8 @@
 <?php
+// Funkce pro generování stromu souborů
 function renderDirectory($dir, $relative = '') {
     $items = scandir($dir);
-    sort($items, SORT_NATURAL | SORT_FLAG_CASE);
-
-    $html = "<ul class='pdf-tree'>";
+    $html = "<ul>";
     foreach ($items as $item) {
         if ($item === '.' || $item === '..') continue;
 
@@ -15,14 +14,9 @@ function renderDirectory($dir, $relative = '') {
             $html .= renderDirectory($path, $relativePath);
             $html .= '</li>';
         } elseif (is_file($path) && pathinfo($path, PATHINFO_EXTENSION) === 'pdf') {
-            $fileDate = date("Y-m-d H:i", filemtime($path));
-            $html .= '<li onclick="openPdf(\'' . htmlspecialchars($relativePath) . '\');">
-                        <a href="#">' . htmlspecialchars($item) . '</a>
-                        <span class="file-date">' . $fileDate . '</span>
-                      </li>';
+            $html .= '<li><a href="#" onclick="openPdf(\'' . htmlspecialchars($relativePath) . '\'); return false;">' . htmlspecialchars($item) . '</a></li>';
         }
     }
     $html .= "</ul>";
     return $html;
 }
-?>
