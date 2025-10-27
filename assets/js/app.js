@@ -1,3 +1,15 @@
+document.addEventListener('DOMContentLoaded', () => {
+    setupPdfTree(); // setup listenerů
+
+    // vybrání posledního souboru
+    const fileTreeContainer = document.getElementById('fileTreeForUpdate');
+    const lastFilePath = fileTreeContainer.getAttribute('data-last-file');
+    if (lastFilePath) {
+        const lastItem = fileTreeContainer.querySelector(`.pdf-item[data-path="${lastFilePath}"]`);
+        if (lastItem) lastItem.click();
+    }
+});
+
 // Funkce pro nahrání PDF souboru
 function uploadPdf() {
     const formData = new FormData();
@@ -19,42 +31,72 @@ function uploadPdf() {
     })
         .then(response => response.json()) // Zpracování odpovědi jako JSON
         .then(data => {
-            uploadMessage.innerHTML = data.message; // Zobrazí zprávu o nahrávání
+            uploadMessage.innerHTML = data.message;
 
             if (data.status === 'success') {
-                // Aktualizace stromu souborů
-                const fileTreeContainer = document.querySelector('#fileTree');
+                const fileTreeContainer = document.querySelector('#fileTreeForUpdate');
                 if (fileTreeContainer) {
-                    fileTreeContainer.innerHTML = data.fileTree; // Zobrazí nový strom souborů
+                    fileTreeContainer.innerHTML = data.fileTreeForUpdate;
+
+                    // znovu setup listenerů na strom
+                    setupPdfTree();
+
+                    // automaticky kliknout na nově nahraný soubor
+                    if (data.newFilePath) {
+                        const newItem = fileTreeContainer.querySelector(`.pdf-item[data-path="${data.newFilePath}"]`);
+                        if (newItem) newItem.click();
+                    }
                 }
+
+                // Zavřít modal po úspěšném nahrání
+                modal.style.display = 'none';
+                // Vyčistit input
+                fileInput.value = '';
+                selectedFileName.textContent = '';
             }
-        })
-        .catch(error => {
-            uploadMessage.innerHTML = "Došlo k chybě při nahrávání souboru.";
-            console.error(error);
+
+        }).catch(error => {
+        uploadMessage.innerHTML = "Došlo k chybě při nahrávání souboru.";
+        console.error(error);
+    });
+}
+
+const fileInput = document.getElementById('pdfFile');
+const selectedFileName = document.getElementById('selectedFileName');
+
+fileInput.addEventListener('change', () => {
+    if (fileInput.files.length) {
+        selectedFileName.textContent = fileInput.files[0].name;
+    } else {
+        selectedFileName.textContent = '';
+    }
+});
+
+
+let activePdfItem = null;
+
+function setupPdfTree() {
+    document.querySelectorAll('.pdf-item').forEach(item => {
+        item.addEventListener('click', function () {
+            // otevře PDF
+            const path = this.getAttribute('data-path');
+            document.getElementById('pdfViewer').src = path;
+
+            // odznačí předchozí
+            if (activePdfItem) {
+                activePdfItem.classList.remove('active-pdf');
+            }
+
+            // označí aktuální
+            activePdfItem = this;
+            activePdfItem.classList.add('active-pdf');
         });
+    });
 }
 
+// zavoláme po načtení stránky a po reloadu stromu
+document.addEventListener('DOMContentLoaded', setupPdfTree);
 
-
-function updateFileTree() {
-    fetch('/includes/renderTree.php')
-        .then(response => response.text())
-        .then(data => {
-            const fileTreeContainer = document.querySelector('#fileTree');
-            fileTreeContainer.innerHTML = data;
-        })
-        .catch(error => {
-            console.error('Chyba při aktualizaci stromu souborů:', error);
-        });
-}
-
-
-// Funkce pro otevření PDF v iframe
-function openPdf(path) {
-    const iframe = document.getElementById('pdfViewer');
-    iframe.src = path;
-}
 
 function sharePdf() {
     if (navigator.share) {
@@ -97,50 +139,71 @@ document.querySelectorAll('.sort-column').forEach(col => {
         const type = col.getAttribute('data-type');
         let order = col.getAttribute('data-order');
 
-        // cyklus: none → asc → desc → asc...
-        if(order === 'none') order = 'asc';
-        else if(order === 'asc') order = 'desc';
+        // cyklus: none -> asc -> desc -> asc
+        if (order === 'none') order = 'asc';
+        else if (order === 'asc') order = 'desc';
         else order = 'asc';
 
-        // reset všech ostatních sloupců
+        // reset ostatních sloupců
         document.querySelectorAll('.sort-column').forEach(c => {
-            if(c !== col) c.setAttribute('data-order','none');
+            if (c !== col) {
+                c.setAttribute('data-order', 'none');
+                c.querySelector('.asc').style.color = '#ccc';
+                c.querySelector('.desc').style.color = '#ccc';
+            }
         });
 
-        // nastavení nového order
+        // nastav barvy šipek
+        const ascArrow = col.querySelector('.asc');
+        const descArrow = col.querySelector('.desc');
+        if (order === 'asc') {
+            ascArrow.style.color = '#0066cc';
+            descArrow.style.color = '#ccc';
+        } else {
+            ascArrow.style.color = '#ccc';
+            descArrow.style.color = '#0066cc';
+        }
+
         col.setAttribute('data-order', order);
 
-        // seřadit strom
-        sortTree(type, order);
+        // seřadit pouze soubory
+        const ul = document.querySelector('#fileTreeForUpdate ul.pdf-tree');
+        const files = Array.from(ul.querySelectorAll('.pdf-item'));
+
+        files.sort((a, b) => {
+            let cmp = 0;
+            if (type === 'name') {
+                cmp = a.querySelector('.file-name').textContent.localeCompare(b.querySelector('.file-name').textContent);
+            } else if (type === 'date') {
+                const dateA = new Date(a.querySelector('.file-date').textContent);
+                const dateB = new Date(b.querySelector('.file-date').textContent);
+                cmp = dateA - dateB;
+            }
+            return order === 'asc' ? cmp : -cmp;
+        });
+
+        // přesuň soubory ve správném pořadí
+        files.forEach(f => ul.appendChild(f));
     });
 });
 
-function sortTree(type, order) {
-    const container = document.getElementById('fileTree');
-    const ul = container.querySelector('ul.pdf-tree');
-    const items = Array.from(ul.children);
 
-    const folders = items.filter(li => li.querySelector('strong'));
-    const files = items.filter(li => li.querySelector('a'));
+const uploadBtn = document.getElementById('uploadBtn');
+const modal = document.getElementById('uploadModal');
+const closeBtn = document.querySelector('.modal .close');
 
-    files.sort((a, b) => {
-        let cmp = 0;
-        if(type === 'name') {
-            cmp = a.querySelector('a').textContent.localeCompare(b.querySelector('a').textContent);
-        } else if(type === 'date') {
-            const dateA = new Date(a.querySelector('.file-date').textContent);
-            const dateB = new Date(b.querySelector('.file-date').textContent);
-            cmp = dateA - dateB;
-        }
-        return order === 'asc' ? cmp : -cmp;
-    });
+uploadBtn.addEventListener('click', () => {
+    modal.style.display = 'flex'; // otevře modal
+});
 
-    ul.innerHTML = '';
-    folders.forEach(folder => ul.appendChild(folder));
-    files.forEach(file => ul.appendChild(file));
-}
+closeBtn.addEventListener('click', () => {
+    modal.style.display = 'none'; // zavře modal
+});
 
-
-
-
+// Zavření po kliknutí mimo obsah
+window.addEventListener('click', (e) => {
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
 

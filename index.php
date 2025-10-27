@@ -25,29 +25,5 @@ require_once 'includes/functions.php';
 
 <?php //include('includes/db.php'); ?>
 
-
-<!-- Formulář pro nahrání PDF -->
-<h2>Nahrát PDF soubor</h2>
-<form id="uploadForm" enctype="multipart/form-data">
-    <input type="file" id="pdfFile" name="pdfFile" accept="application/pdf" required>
-    <button type="button" onclick="uploadPdf()">Nahrát</button>
-</form>
-<p id="uploadMessage"></p>
-
-<h2>Seznam PDF souborů</h2>
-<div id="fileTree">
-    <!-- Tento element bude aktualizován dynamicky po nahrání souboru -->
-    <?php
-    $baseDir = __DIR__ . '/uploads'; // složka, kde máš PDF
-    echo renderDirectory($baseDir, 'uploads');
-    ?>
-</div>
-
-
-<hr>
-<h2>Náhled PDF</h2>
-<iframe id="pdfViewer" src="" width="100%" height="600px"></iframe>
-<!--<button onclick="sharePdf()">Sdílet PDF</button>-->
-
 </body>
 </html>
