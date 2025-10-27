@@ -1,11 +1,19 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
+$navItems = [
+        'index.php' => 'Domů',
+        'new-version.php' => 'iSoupis',
+        'administration.php' => 'Administrace'
+];
 ?>
+
 <nav>
     <ul>
-        <li class="<?= $currentPage === 'index.php' ? 'active' : '' ?>"><a href="../index.php">Domů</a></li>
-        <li class="<?= $currentPage === 'new-version.php' ? 'active' : '' ?>"><a href="../new-version.php">Nová verze</a></li>
-        <li class="<?= $currentPage === 'administration.php' ? 'active' : '' ?>"><a href="../administration.php">Administrace</a></li>
+        <?php foreach ($navItems as $file => $title): ?>
+            <li class="<?= $currentPage === $file ? 'active' : '' ?>">
+                <a href="<?= $file ?>"><?= e($title) ?></a>
+            </li>
+        <?php endforeach; ?>
     </ul>
 </nav>
 

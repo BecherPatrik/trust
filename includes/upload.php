@@ -1,50 +1,48 @@
 <?php
+header('Content-Type: application/json');
 
-// Zobrazování chyb
-ini_set('display_errors', 1);
-ini_set('display_startup_errors', 1);
-error_reporting(E_ALL);
+define('UPLOAD_DIR', __DIR__ . '/../uploads');
 
-require_once __DIR__ . '/../includes/functions.php';
+$response = [
+    'status' => 'error',
+    'message' => 'Nahrávání selhalo.'
+];
 
-// Cesta pro uložení souboru
-$uploadDir = __DIR__ . '/../uploads';
-if (!is_dir($uploadDir)) {
-    mkdir($uploadDir, 0777, true);
-}
+if (isset($_FILES['pdfFile']) && $_FILES['pdfFile']['error'] === UPLOAD_ERR_OK) {
+    $fileTmpPath = $_FILES['pdfFile']['tmp_name'];
+    $fileName = basename($_FILES['pdfFile']['name']);
+    $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-// Zpracování souboru
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_FILES['pdfFile'])) {
-    $file = $_FILES['pdfFile'];
-    $fileName = basename($file['name']);
-    $fileType = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+    if ($fileExt !== 'pdf') {
+        $response['message'] = 'Můžete nahrát pouze PDF soubory.';
+        echo json_encode($response);
+        exit;
+    }
 
-    if ($fileType === 'pdf') {
-        $targetPath = $uploadDir . DIRECTORY_SEPARATOR . $fileName;
+    $safeName = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $fileName);
+    $destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $safeName;
 
-        if (move_uploaded_file($file['tmp_name'], $targetPath)) {
-            echo json_encode([
-                'status' => 'success',
-                'message' => "Soubor $fileName byl úspěšně nahrán.",
-                'fileTreeForUpdate' => renderDirectory($uploadDir, 'uploads'),
-                'newFilePath' => 'uploads/' . $fileName // přidáme cestu k novému souboru
-            ]);
-        } else {
-            echo json_encode([
-                'status' => 'error',
-                'message' => 'Chyba při nahrávání souboru.'
-            ]);
-        }
+    // Pokud soubor existuje, přidej timestamp
+    if (file_exists($destination)) {
+        $nameOnly = pathinfo($safeName, PATHINFO_FILENAME);
+        $destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $nameOnly . '_' . time() . '.pdf';
+        $safeName = basename($destination);
+    }
+
+    if (move_uploaded_file($fileTmpPath, $destination)) {
+        $fileDate = date("Y-m-d H:i", filemtime($destination));
+        $response = [
+            'status' => 'success',
+            'message' => 'Soubor byl úspěšně nahrán.',
+            'newFileName' => $safeName,
+            'newFilePath' => 'uploads/' . $safeName,
+            'newFileDate' => $fileDate
+        ];
     } else {
-        echo json_encode([
-            'status' => 'error',
-            'message' => 'Povolené jsou pouze PDF soubory.'
-        ]);
+        $response['message'] = 'Nepodařilo se uložit soubor.';
     }
 } else {
-    echo json_encode([
-        'status' => 'error',
-        'message' => 'Nebyl odeslán žádný soubor.'
-    ]);
+    $response['message'] = 'Nebyl vybrán žádný soubor nebo nastala chyba při nahrávání.';
 }
 
+echo json_encode($response);

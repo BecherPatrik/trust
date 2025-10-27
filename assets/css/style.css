@@ -1,4 +1,6 @@
-/* === ZÁKLADNÍ NASTAVENÍ === */
+/* =========================
+   ZÁKLADNÍ NASTAVENÍ
+========================= */
 body {
     font-family: "Segoe UI", Roboto, sans-serif;
     margin: 0;
@@ -6,7 +8,13 @@ body {
     color: #222;
 }
 
-/* === NAVIGACE (HORNÍ MENU) === */
+h1, h2, h3, p {
+    margin: 0 0 12px 0;
+}
+
+/* =========================
+   NAVIGACE (HORNÍ MENU)
+========================= */
 nav {
     background: #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
@@ -17,7 +25,7 @@ nav {
 }
 
 nav ul {
-    list-style-type: none;
+    list-style: none;
     margin: 0;
     padding: 0;
     display: flex;
@@ -35,9 +43,9 @@ nav a {
     color: #333;
     font-size: 16px;
     font-weight: 500;
-    transition: color 0.2s, transform 0.15s, background 0.15s;
     padding: 10px 12px;
     border-radius: 4px;
+    transition: color 0.2s, transform 0.15s, background 0.15s;
 }
 
 nav a:hover {
@@ -52,33 +60,38 @@ nav li.active a {
     background-color: #e6f0ff;
 }
 
-/* === HLAVNÍ OBSAH === */
+/* =========================
+   HLAVNÍ OBSAH
+========================= */
 main {
     display: flex;
-    align-items: stretch;
     gap: 20px;
     padding: 20px;
     height: calc(100vh - 90px);
     box-sizing: border-box;
 }
 
-/* === LEVÝ PANEL – STROM PDF === */
+/* =========================
+   LEVÝ PANEL – STROM PDF
+========================= */
 #fileTree {
+    display: flex;
+    flex-direction: column;
     width: 30%;
     max-width: 350px;
     background: #fff;
-    padding: 10px;
-    border-radius: 6px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    overflow-y: auto;
+    padding: 12px 0 12px 12px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
     font-size: 15px;
     box-sizing: border-box;
-    word-wrap: break-word;
-    overflow-wrap: anywhere;
     position: relative;
+    overflow: hidden; /* schová scrollbar uvnitř wrapperu */
 }
 
-/* === UPLOAD BUTTON NAD STROMEM === */
+/* =========================
+   TLAČÍTKO + (UPLOAD PDF)
+========================= */
 #uploadBtn {
     position: absolute;
     top: 10px;
@@ -105,10 +118,13 @@ main {
     transform: translateY(-2px);
 }
 
-/* === SORT PANEL === */
-.file-sort {
+/* =========================
+   SORT PANEL NAD STROMEM PDF
+========================= */
+#fileSort {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start; /* vedle sebe */
+    gap: 20px;
     margin-bottom: 8px;
     font-weight: 600;
     font-size: 14px;
@@ -122,23 +138,40 @@ main {
     align-items: center;
     gap: 6px;
 }
+
+.sort-column span {
+    display: flex;
+    align-items: center;
+}
+
 .sort-arrows .asc, .sort-arrows .desc {
     font-size: 10px;
     line-height: 10px;
     color: #ccc;
     transition: color 0.2s;
 }
+
 .sort-column[data-order="asc"] .asc {
     color: #0066cc;
 }
+
 .sort-column[data-order="desc"] .desc {
     color: #0066cc;
 }
 
+/* =========================
+   SCROLLABLE PDF STROM
+========================= */
+.tree-scroll {
+    flex: 1 1 auto; /* zabere zbytek panelu pod sort panelem */
+    overflow-y: auto;
+    padding-right: 8px; /* prostor pro scrollbar */
+    box-sizing: content-box;
+    border-radius: 0;
+}
 
-/* === PDF STROM === */
 .pdf-tree {
-    list-style-type: none;
+    list-style: none;
     margin: 0;
     padding: 0;
 }
@@ -151,16 +184,14 @@ main {
 
 .pdf-tree li {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    flex-direction: column; /* název nahoře, datum dole */
+    align-items: flex-start;
     padding: 6px 8px;
-    border-bottom: 1px solid #f2f2f2;
-    transition: background 0.15s;
+    margin-bottom: 2px;
+    transition: background 0.15s, transform 0.15s, box-shadow 0.2s;
     cursor: pointer;
-}
-
-.pdf-tree li:hover {
-    background-color: #f0f0f0;
+    word-wrap: break-word;
+    overflow-wrap: anywhere;
 }
 
 .pdf-tree li strong {
@@ -195,56 +226,109 @@ main {
     text-decoration: none;
     color: #333;
     display: block;
-    padding: 4px 0;
+    padding: 2px 0;
 }
 
 .pdf-tree li a:hover {
     color: #0066cc;
-    text-decoration: none;
 }
 
 .file-date {
     font-size: 12px;
     color: #666;
-    white-space: nowrap;
-}
-.pdf-item.active-pdf {
-    background-color: #e6f0ff;
-    border-left: 4px solid #0066cc;
-    padding-left: 6px;
-}
-.pdf-item:hover {
-    background-color: #f0f8ff;
+    margin-top: 2px;
+    white-space: normal;
 }
 
-/* === PRAVÝ PANEL – PDF NÁHLED + SHARE BUTTON === */
+/* =========================
+   AKTIVNÍ PDF POLOŽKA – VYSTOUPÍ
+========================= */
+.pdf-item.active-pdf {
+    background-color: #e6f0ff;
+    position: relative;
+    border-radius: 6px; /* celkové zakulacení */
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3); /* jemný modrý stín */
+    transform: translateY(-2px); /* lehké zvednutí */
+    transition: transform 0.15s, box-shadow 0.2s;
+    z-index: 1;
+}
+
+/* Rovná modrá čárka vlevo */
+.pdf-item.active-pdf::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    width: 4px;
+    background-color: #0066cc;
+    border-radius: 0; /* čárka rovná */
+    box-shadow: 0 0 6px rgba(0, 102, 204, 0.4);
+}
+
+/* Horní rohy první položky uvnitř stromu */
+.pdf-tree > li:first-child.pdf-item.active-pdf {
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+}
+
+/* Hover efekt pro ostatní položky */
+.pdf-item:hover {
+    background-color: #e6f0ff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
+    transform: translateY(-2px);
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+
+/* Hover efekt pro ostatní položky */
+.pdf-item:hover {
+    background-color: #e6f0ff;
+    border-radius: 6px;
+    box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3); /* jemný modrý stín */
+    transform: translateY(-2px); /* lehké zvednutí */
+    transition: transform 0.15s, box-shadow 0.2s;
+}
+
+
+/* =========================
+   PRAVÝ PANEL – PDF NÁHLED
+========================= */
 #pdfContainer {
     flex: 1;
     display: flex;
     flex-direction: column;
     position: relative;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    overflow: hidden;
 }
 
 #pdfViewer {
     flex: 1;
     width: 100%;
-    height: 100%;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border: none;
+    border-radius: 12px 12px 0 0;
     background: #fff;
 }
 
+/* Sdílecí tlačítko */
 #shareBtn {
     position: absolute;
     bottom: 20px;
     right: 20px;
-    width: 48px;
-    height: 48px;
+    width: 50px;
+    height: 50px;
     border-radius: 50%;
     border: none;
-    background-color: #0066cc;
-    color: #fff;
-    font-size: 20px;
+    background-color: #0066cc; /* modrá */
+    color: #fff;               /* bílá ikona */
+    font-size: 24px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
     cursor: pointer;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
     transition: background 0.2s, transform 0.15s;
@@ -256,8 +340,12 @@ main {
     transform: translateY(-2px);
 }
 
+
+/* =========================
+   MODAL – UPLOAD PDF
+========================= */
 .modal {
-    display: none; /* defaultně skrytý */
+    display: none;
     position: fixed;
     z-index: 1000;
     left: 0;
@@ -289,7 +377,6 @@ main {
     color: #333;
 }
 
-/* Close button */
 .modal .close {
     position: absolute;
     top: 12px;
@@ -305,14 +392,14 @@ main {
     color: #000;
 }
 
-/* File input container */
+/* File input */
 .file-input-container {
     position: relative;
     margin-bottom: 20px;
 }
 
 .file-input-container input[type="file"] {
-    display: none; /* skryjeme defaultní input */
+    display: none;
 }
 
 .file-input-container label {
@@ -331,7 +418,7 @@ main {
     transform: translateY(-1px);
 }
 
-/* Zobrazit vybraný soubor */
+/* Název vybraného souboru */
 #selectedFileName {
     display: block;
     margin-top: 10px;
@@ -340,7 +427,7 @@ main {
     word-break: break-word;
 }
 
-/* Upload button – kulaté s ikonou */
+/* Upload tlačítko v modalu */
 #modalUploadBtn {
     position: absolute;
     bottom: 20px;
@@ -366,22 +453,6 @@ main {
 }
 
 /* Upload message */
-#uploadMessage {
-    margin-top: 10px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-#uploadMessage.success {
-    color: #28a745;
-}
-
-#uploadMessage.error {
-    color: #dc3545;
-}
-
-
-/* Hlášky */
 #uploadMessage {
     font-size: 14px;
     padding: 8px 12px;
@@ -413,25 +484,28 @@ main {
     font-weight: bold;
 }
 
-/* Responsivita */
-@media (max-width: 480px) {
-    .modal-content {
-        margin: 15% auto;
-        padding: 20px 15px;
-    }
-
-    .modal-content h3 {
-        font-size: 18px;
-    }
-
-    .modal-content button {
-        font-size: 15px;
-        padding: 10px 0;
-    }
+/* Footer sjednocený s pozadím stránky */
+#siteFooter {
+    background-color: #f7f7f7; /* stejné jako hlavní obsah stránky */
+    color: #333;
+    text-align: center;
+    font-size: 14px;
+    border-top: none; /* žádná linka, aby to vypadalo spojeně */
 }
 
+/* Odkaz ve footeru */
+#siteFooter a {
+    color: #0066cc;
+    text-decoration: none;
+}
 
-/* === RESPONSIVITA === */
+#siteFooter a:hover {
+    text-decoration: underline;
+}
+
+/* =========================
+   RESPONSIVITA
+========================= */
 @media (max-width: 768px) {
     nav ul {
         flex-direction: column;
@@ -467,17 +541,8 @@ main {
     }
 
     #uploadBtn {
-        top: 10px;
-        left: 10px;
         width: 40px;
         height: 40px;
         font-size: 24px;
     }
-
-    #shareBtn:hover {
-        background-color: #004999;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
-
 }
