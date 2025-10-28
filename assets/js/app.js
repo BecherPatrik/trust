@@ -163,16 +163,16 @@ function uploadPdf() {
             uploadMessage.textContent = "Chyba při nahrávání souboru.";
         });
 }
+window.iframe = document.getElementById('pdfViewer');
 
 // Otevření PDF
 function openPdf(filePath) {
-    const iframe = document.getElementById('pdfViewer');
-    if (!iframe) return;
+    if (!window.iframe) return;
 
     // Přidání parametrů pro minimalizaci toolbaru (funguje jen v některých prohlížečích)
     const minimalUrl = `${filePath}#toolbar=0&navpanes=0&scrollbar=0`;
 
-    iframe.src = minimalUrl;
+    window.iframe.src = minimalUrl;
 }
 
 
@@ -192,12 +192,10 @@ function setupPdfTree() {
     });
 }
 
-const iframe = document.getElementById('pdfViewer');
-
 // --- Sdílet / stáhnout tlačítko ---
-const shareButton = document.getElementById("shareBtn");
-shareButton.addEventListener("click", async () => {
-    const pdfUrl = iframe.src;
+window.shareButton = document.getElementById("shareBtn");
+window.shareButton.addEventListener("click", async () => {
+    const pdfUrl = window.iframe.src;
 
     // získat název PDF z URL
     const parts = pdfUrl.split('/');
@@ -237,7 +235,7 @@ shareButton.addEventListener("click", async () => {
 // --- Otevřít v novém okně ---
 const openBtn = document.getElementById('openPdfBtn');
 openBtn.addEventListener('click', () => {
-    const pdfUrl = iframe.src;
+    const pdfUrl = window.iframe.src;
     if (pdfUrl) {
         window.open(pdfUrl, '_blank'); // otevře PDF v novém okně/tabu
     } else {
