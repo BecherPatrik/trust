@@ -12,16 +12,32 @@ h1, h2, h3, p {
     margin: 0 0 12px 0;
 }
 
-/* =========================
-   NAVIGACE (HORNÍ MENU)
-========================= */
 nav {
     background: #ffffff;
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
-    padding: 0 40px;
+    padding: 0 10px;
     position: sticky;
     top: 0;
     z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start; /* menu zůstává vlevo */
+    gap: 15px;
+    position: relative; /* pro absolutní pozici Trust. */
+}
+
+nav .logo img {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+nav .logo img:hover {
+    transform: scale(1.05);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
 }
 
 nav ul {
@@ -30,7 +46,7 @@ nav ul {
     padding: 0;
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 10px;
     height: 60px;
 }
 
@@ -61,6 +77,21 @@ nav li.active a {
 }
 
 /* =========================
+   TEXT TRUST DOPRAVA
+========================= */
+nav .trust-text {
+    position: absolute;      /* absolutně doprava v nav */
+    right: 10px;             /* odsazení od pravého okraje */
+    font-family: "Times New Roman", Times, serif;
+    font-size: 30px;
+    font-weight: 700;
+    line-height: 33px;
+    color: #000;
+    user-select: none;
+}
+
+
+/* =========================
    HLAVNÍ OBSAH
 ========================= */
 main {
@@ -82,7 +113,7 @@ main {
     background: #fff;
     padding: 12px 0 12px 12px;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     font-size: 15px;
     box-sizing: border-box;
     position: relative;
@@ -302,7 +333,7 @@ main {
     position: relative;
     background: #fff;
     border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
     overflow: hidden;
 }
 
@@ -315,17 +346,18 @@ main {
 }
 
 /* Sdílecí tlačítko */
-#shareBtn {
+/* Společný styl pro tlačítka */
+.pdfButton {
     position: absolute;
-    bottom: 20px;
-    right: 20px;
+    top: 12px;
     width: 50px;
     height: 50px;
     border-radius: 50%;
     border: none;
-    background-color: #0066cc; /* modrá */
-    color: #fff;               /* bílá ikona */
-    font-size: 24px;
+    background-color: #0066cc;
+    color: #fff;
+    font-size: 28px;       /* trochu větší pro lepší vizuální vyvážení */
+    line-height: 1;        /* zabrání posunutí */
     display: flex;
     justify-content: center;
     align-items: center;
@@ -335,11 +367,27 @@ main {
     z-index: 10;
 }
 
-#shareBtn:hover {
+.pdfButton:hover {
     background-color: #004999;
     transform: translateY(-2px);
 }
 
+/* Specifické pozice */
+#shareBtn {
+    left: 12px;
+}
+
+#openPdfBtn {
+    left: 74px; /* 12px mezera od prvního tlačítka + šířka 50px */
+    top: 12px;  /* zarovnáno s tlačítkem + */
+}
+
+.pdfButton:focus,
+.pdfButton:active {
+    outline: none;           /* odstraní okraje focus */
+    background-color: #0066cc; /* základní barva */
+    transform: translateY(0);  /* reset pozice */
+}
 
 /* =========================
    MODAL – UPLOAD PDF
@@ -352,7 +400,7 @@ main {
     top: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0,0,0,0.5);
+    background-color: rgba(0, 0, 0, 0.5);
     backdrop-filter: blur(2px);
     justify-content: center;
     align-items: center;
@@ -364,7 +412,7 @@ main {
     border-radius: 12px;
     width: 90%;
     max-width: 400px;
-    box-shadow: 0 6px 25px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 25px rgba(0, 0, 0, 0.3);
     position: relative;
     text-align: center;
     font-family: "Segoe UI", Roboto, sans-serif;
@@ -390,6 +438,30 @@ main {
 
 .modal .close:hover {
     color: #000;
+}
+
+#modalUploadBtn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    border: none;
+    background-color: #28a745;
+    color: #fff;
+    font-size: 22px;
+    cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: background 0.2s, transform 0.15s;
+}
+
+#modalUploadBtn:hover {
+    background-color: #1e7e34;
+    transform: translateY(-2px);
 }
 
 /* File input */
@@ -425,31 +497,6 @@ main {
     font-size: 14px;
     color: #333;
     word-break: break-word;
-}
-
-/* Upload tlačítko v modalu */
-#modalUploadBtn {
-    position: absolute;
-    bottom: 20px;
-    right: 20px;
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    border: none;
-    background-color: #28a745;
-    color: #fff;
-    font-size: 22px;
-    cursor: pointer;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: background 0.2s, transform 0.15s;
-}
-
-#modalUploadBtn:hover {
-    background-color: #1e7e34;
-    transform: translateY(-2px);
 }
 
 /* Upload message */
@@ -503,46 +550,118 @@ main {
     text-decoration: underline;
 }
 
-/* =========================
-   RESPONSIVITA
-========================= */
 @media (max-width: 768px) {
-    nav ul {
-        flex-direction: column;
-        gap: 10px;
-        height: auto;
-        padding: 10px 0;
+    html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        overflow-x: hidden;
+        box-sizing: border-box;
     }
 
     main {
+        display: flex;
         flex-direction: column;
-        padding: 20px;
-        height: auto;
-    }
-
-    #fileTree {
         width: 100%;
-        max-width: none;
-        border-right: none;
+        margin: 0;
+        padding: 0;
+        gap: 0;
+    }
+
+    /* + a strom v jednom řádku */
+    .topBar {
+        display: flex;
+        flex-direction: row;
+        align-items: flex-start;
+        justify-content: flex-start;
+        width: 100%;
+        padding: 10px;
+        box-sizing: border-box;
+        background: #fff;
         border-bottom: 1px solid #ccc;
-        max-height: 300px;
     }
 
-    #pdfViewer {
-        height: 70vh;
-    }
-
-    #shareBtn {
-        width: 40px;
-        height: 40px;
+    /* strom souborů – zabírá zbytek místa */
+    #fileTree {
+        padding-left: 65px;
+        padding-top: 0;
+        margin-top: 0;
+        flex-grow: 1;
+        max-height: 200px; /* cca 3 řádky */
+        max-width: 768px;
+        width: 100%;
+        overflow-y: auto;
+        border: none;
+        background-color: #fff;
+        border-radius: 0;
+        box-shadow: none;
         font-size: 16px;
-        bottom: 10px;
-        right: 10px;
     }
 
-    #uploadBtn {
-        width: 40px;
-        height: 40px;
-        font-size: 24px;
+    #fileSort {
+        margin-top: 5px; /* odsazení pod upload tlačítko */
+    }
+
+    /* tlačítka pod stromem */
+    .pdfButtons {
+        display: flex;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+        gap: 15px;
+        width: 100%;
+        padding: 10px 0;
+        background: #f8f8f8;
+        border-bottom: 1px solid #ddd;
+    }
+
+    .pdfButtons button {
+        width: 50px;
+        height: 50px;
+        font-size: 22px;
+        border-radius: 50%;
+        border: none;
+        background-color: #0066cc;
+        color: #fff;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    /* PDF – přes celou šířku, vysoké, bez horizontálního scrollu */
+    #pdfViewer {
+        width: 100%;
+        height: 70vh; /* výška na mobilu */
+        background: #fff;
+        border: none;
+        border-radius: 0;
+        overflow: hidden;
+        display: block;
+        margin: 0;
+        padding: 0;
+    }
+
+    #pdfViewer iframe,
+    #pdfViewer object,
+    #pdfViewer embed {
+        width: 100%;
+        height: 100%;
+        border: none;
+        display: block;
+        pointer-events: none; /* scrolluje stránka, ne PDF */
+    }
+
+    footer {
+        width: 100%;
+        margin-top: 10px;
+        padding: 15px;
+        background-color: inherit;
+        box-shadow: none;
+        border-top: 1px solid #ddd;
+        text-align: center;
+        font-size: 14px;
     }
 }
+

@@ -5,9 +5,15 @@ document.addEventListener('DOMContentLoaded', () => {
     const closeBtn = modal.querySelector('.close');
     const modalUploadBtn = document.getElementById('modalUploadBtn');
 
-    uploadBtn.addEventListener('click', () => { modal.style.display = 'flex'; });
-    closeBtn.addEventListener('click', () => { modal.style.display = 'none'; });
-    window.addEventListener('click', (e) => { if (e.target === modal) modal.style.display = 'none'; });
+    uploadBtn.addEventListener('click', () => {
+        modal.style.display = 'flex';
+    });
+    closeBtn.addEventListener('click', () => {
+        modal.style.display = 'none';
+    });
+    window.addEventListener('click', (e) => {
+        if (e.target === modal) modal.style.display = 'none';
+    });
 
     // === FILE INPUT ===
     const fileInput = document.getElementById('pdfFile');
@@ -113,7 +119,7 @@ function uploadPdf() {
     const uploadMessage = document.getElementById('uploadMessage');
     uploadMessage.textContent = "Nahrávám soubor...";
 
-    fetch('includes/upload.php', { method: 'POST', body: formData })
+    fetch('includes/upload.php', {method: 'POST', body: formData})
         .then(response => response.text())
         .then(text => {
             try {
@@ -161,34 +167,80 @@ function uploadPdf() {
 // Otevření PDF
 function openPdf(filePath) {
     const iframe = document.getElementById('pdfViewer');
-    if (iframe) iframe.src = filePath;
+    if (!iframe) return;
+
+    // Přidání parametrů pro minimalizaci toolbaru (funguje jen v některých prohlížečích)
+    const minimalUrl = `${filePath}#toolbar=0&navpanes=0&scrollbar=0`;
+
+    iframe.src = minimalUrl;
 }
 
+
 // PDF strom
-let activePdfItem = null;
+window.activePdfItem = window.activePdfItem || null;
+
 function setupPdfTree() {
     document.querySelectorAll('.pdf-item').forEach(item => {
         item.addEventListener('click', function () {
             const path = this.getAttribute('data-path');
             openPdf(path);
 
-            if (activePdfItem) activePdfItem.classList.remove('active-pdf');
-            activePdfItem = this;
-            activePdfItem.classList.add('active-pdf');
+            if (window.activePdfItem) window.activePdfItem.classList.remove('active-pdf');
+            window.activePdfItem = this;
+            window.activePdfItem.classList.add('active-pdf');
         });
     });
 }
 
-// Sdílení PDF
-function sharePdf() {
-    if (navigator.share) {
-        navigator.share({
-            title: 'Důležité PDF',
-            text: 'Podívejte se na tento soubor PDF.',
-            url: document.getElementById('pdfViewer').src
-        }).then(() => console.log('Sdílení bylo úspěšné'))
-            .catch((error) => console.error('Chyba při sdílení:', error));
-    } else {
-        alert('Sdílení není podporováno na tomto zařízení.');
+const iframe = document.getElementById('pdfViewer');
+
+// --- Sdílet / stáhnout tlačítko ---
+const shareButton = document.getElementById("shareBtn");
+shareButton.addEventListener("click", async () => {
+    const pdfUrl = iframe.src;
+
+    // získat název PDF z URL
+    const parts = pdfUrl.split('/');
+    const fileNameWithExt = parts[parts.length - 1];
+    const fileName = fileNameWithExt.replace(/\.pdf$/i, '') || "document";
+
+    try {
+        // stáhnout PDF jako blob
+        const response = await fetch(pdfUrl);
+        const data = await response.blob();
+        const file = new File([data], fileName + ".pdf", { type: "application/pdf" });
+
+        // zkusit Web Share API se souborem
+        if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            await navigator.share({
+                title: "Důležité PDF",
+                text: "Podívejte se na tento soubor PDF.",
+                files: [file]
+            });
+            console.log("Sdílení bylo úspěšné");
+        } else {
+            throw new Error("Web Share API se soubory není podporováno");
+        }
+    } catch (err) {
+        console.warn("Sdílení selhalo, spouštíme stažení:", err.message);
+
+        // fallback: stáhnout PDF pomocí dočasného <a>
+        const a = document.createElement("a");
+        a.href = pdfUrl;
+        a.download = fileName + ".pdf";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
     }
-}
+});
+
+// --- Otevřít v novém okně ---
+const openBtn = document.getElementById('openPdfBtn');
+openBtn.addEventListener('click', () => {
+    const pdfUrl = iframe.src;
+    if (pdfUrl) {
+        window.open(pdfUrl, '_blank'); // otevře PDF v novém okně/tabu
+    } else {
+        console.warn("PDF není načtené");
+    }
+});

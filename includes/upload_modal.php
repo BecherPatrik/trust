@@ -9,7 +9,7 @@
             <span id="selectedFileName"></span>
         </div>
 
-        <button id="modalUploadBtn" type="button" title="Nahrát">&#10003;</button>
+        <button id="modalUploadBtn"  type="button" title="Nahrát">&#10003;</button>
         <p id="uploadMessage"></p>
     </div>
 </div>

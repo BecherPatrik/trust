@@ -3,11 +3,14 @@ $currentPage = basename($_SERVER['PHP_SELF']);
 $navItems = [
         'index.php' => 'Domů',
         'new-version.php' => 'iSoupis',
-        'administration.php' => 'Administrace'
 ];
 ?>
 
 <nav>
+    <div class="logo">
+        <img src="../icon.png" alt="">
+    </div>
+
     <ul>
         <?php foreach ($navItems as $file => $title): ?>
             <li class="<?= $currentPage === $file ? 'active' : '' ?>">
@@ -15,5 +18,6 @@ $navItems = [
             </li>
         <?php endforeach; ?>
     </ul>
-</nav>
 
+    <div class="trust-text">Trust.</div>
+</nav>
