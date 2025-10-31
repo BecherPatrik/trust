@@ -170,7 +170,7 @@ function openPdf(filePath) {
     if (!window.iframe) return;
 
     // Přidání parametrů pro minimalizaci toolbaru (funguje jen v některých prohlížečích)
-    const minimalUrl = `${filePath}#toolbar=0&navpanes=0&scrollbar=0`;
+    const minimalUrl = `${filePath}`;
 
     window.iframe.src = minimalUrl;
 }

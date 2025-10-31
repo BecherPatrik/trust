@@ -4,7 +4,13 @@ ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 require_once 'includes/functions.php';
+
+// --- Generování stromu PDF ---
+$baseDir = __DIR__ . '/uploads';
+$lastFilePath = null;
+$fileTreeHtml = renderDirectory($baseDir, 'uploads', $lastFilePath);
 ?>
+
 <!DOCTYPE html>
 <html lang="cs">
 <head>
@@ -16,10 +22,20 @@ require_once 'includes/functions.php';
 </head>
 <body>
 
-<?php include 'includes/header.php'; ?>
+<?php include('includes/header.php'); ?>
 
 <main>
-    <h1>Vítejte na domovské stránce!</h1>
+    <?php
+    // --- Předání dat do panelu stromu ---
+    $panelData = [
+            'lastFilePath' => $lastFilePath,
+            'fileTreeHtml' => $fileTreeHtml
+    ];
+    include('includes/pdf-tree-panel.php');
+
+    // --- PDF viewer panel ---
+    include('includes/pdf-viewer-panel.php');
+    ?>
 </main>
 
 <?php include 'includes/footer.php'; ?>
