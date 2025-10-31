@@ -1,8 +1,7 @@
 <?php
 $currentPage = basename($_SERVER['PHP_SELF']);
 $navItems = [
-        'index.php' => 'Domů',
-        'new-version.php' => 'iSoupis',
+        'index.php' => 'iSoupis',
 ];
 ?>
 
