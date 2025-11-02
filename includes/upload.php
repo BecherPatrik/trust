@@ -1,5 +1,5 @@
 <?php
-header('Content-Type: application/json');
+header('Content-Type: application/json; charset=utf-8');
 
 define('UPLOAD_DIR', __DIR__ . '/../uploads');
 
@@ -10,23 +10,23 @@ $response = [
 
 if (isset($_FILES['pdfFile']) && $_FILES['pdfFile']['error'] === UPLOAD_ERR_OK) {
     $fileTmpPath = $_FILES['pdfFile']['tmp_name'];
-    $fileName = basename($_FILES['pdfFile']['name']);
+    $fileName = $_FILES['pdfFile']['name']; // plný název, nic neupravujeme
     $fileExt = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
     if ($fileExt !== 'pdf') {
         $response['message'] = 'Můžete nahrát pouze PDF soubory.';
-        echo json_encode($response);
+        echo json_encode($response, JSON_UNESCAPED_UNICODE);
         exit;
     }
 
-    $safeName = preg_replace('/[^a-zA-Z0-9_\-\.]/', '_', $fileName);
-    $destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $safeName;
+    // Bezpečné spojení cesty – nijak neupravujeme název
+    $destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $fileName;
 
-    // Pokud soubor existuje, přidej timestamp
+    // Pokud soubor existuje, přidáme timestamp
     if (file_exists($destination)) {
-        $nameOnly = pathinfo($safeName, PATHINFO_FILENAME);
+        $nameOnly = pathinfo($fileName, PATHINFO_FILENAME);
         $destination = UPLOAD_DIR . DIRECTORY_SEPARATOR . $nameOnly . '_' . time() . '.pdf';
-        $safeName = basename($destination);
+        $fileName = basename($destination);
     }
 
     if (move_uploaded_file($fileTmpPath, $destination)) {
@@ -34,8 +34,8 @@ if (isset($_FILES['pdfFile']) && $_FILES['pdfFile']['error'] === UPLOAD_ERR_OK) 
         $response = [
             'status' => 'success',
             'message' => 'Soubor byl úspěšně nahrán.',
-            'newFileName' => $safeName,
-            'newFilePath' => 'uploads/' . $safeName,
+            'newFileName' => $fileName,
+            'newFilePath' => 'uploads/' . $fileName,
             'newFileDate' => $fileDate
         ];
     } else {
@@ -45,4 +45,4 @@ if (isset($_FILES['pdfFile']) && $_FILES['pdfFile']['error'] === UPLOAD_ERR_OK) 
     $response['message'] = 'Nebyl vybrán žádný soubor nebo nastala chyba při nahrávání.';
 }
 
-echo json_encode($response);
+echo json_encode($response, JSON_UNESCAPED_UNICODE);

@@ -1,5 +1,4 @@
 <!-- footer.php -->
 <footer id="siteFooter">
-    Copyright &copy; 2025 iSoupis |
-    <a href="https://aikvlk.cz/" target="_blank">AIKVLK.CZ</a>
+    Copyright © 2014 Trust. | AIKVLK.CZ
 </footer>
