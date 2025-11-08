@@ -237,44 +237,57 @@ window.openBtn.addEventListener('click', () => {
     }
 });
 
-window.deleteButton = document.getElementById("deleteBtn");
-window.deleteButton.addEventListener("click", async () => {
-    if (!window.activePdfItem) {
-        alert("Nejprve vyberte soubor ke smazání.");
-        return;
-    }
-    const fileName = window.activePdfItem.querySelector('.file-name').textContent;
-    const filePath = window.activePdfItem.getAttribute('data-path');
+// === DELETE PDF ===
+(() => {
+    const deleteBtn = document.getElementById("deleteBtn");
 
-    if (!confirm(`Opravdu chcete smazat soubor "${fileName}"?`)) return;
+    if (!deleteBtn) return;
 
-    const formData = new FormData();
-    formData.append('file', filePath);
+    // Odstraníme všechny možné dřívější listenery
+    const newDeleteBtn = deleteBtn.cloneNode(true);
+    deleteBtn.parentNode.replaceChild(newDeleteBtn, deleteBtn);
 
-    try {
-        const response = await fetch('includes/delete.php', {
-            method: 'POST',
-            body: formData
-        });
-        const result = await response.text();
-
-        if (result.includes("úspěšně")) {
-            // odstraníme z DOM
-            window.activePdfItem.remove();
-            window.activePdfItem = null;
-
-            // vybrat nejnovější soubor (první v DOM)
-            const fileTreeContainer = document.querySelector('#fileTreeForUpdate ul.pdf-tree');
-            const newestItem = fileTreeContainer.querySelector('li.pdf-item:first-child');
-            if (newestItem) newestItem.click();
-            else document.getElementById('pdfViewer').src = ""; // žádný soubor
-
-        } else {
-            alert(result); // chyba serveru
+    newDeleteBtn.addEventListener("click", async () => {
+        const currentItem = window.activePdfItem;
+        if (!currentItem) {
+            alert("Nejprve vyberte soubor ke smazání.");
+            return;
         }
-    } catch (err) {
-        console.error(err);
-        alert("Chyba při mazání souboru.");
-    }
-});
+
+        const fileName = currentItem.querySelector('.file-name').textContent;
+        const filePath = currentItem.getAttribute('data-path');
+
+        // Confirm se spustí jen jednou
+        if (!confirm(`Opravdu chcete smazat soubor "${fileName}"?`)) return;
+
+        const formData = new FormData();
+        formData.append('file', filePath);
+
+        try {
+            const response = await fetch('includes/delete.php', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.text();
+
+            if (result.includes("úspěšně")) {
+                // Odstraníme z DOM
+                currentItem.remove();
+                window.activePdfItem = null;
+
+                // Označíme nejnovější soubor (první v DOM)
+                const fileTreeContainer = document.querySelector('#fileTreeForUpdate ul.pdf-tree');
+                const newestItem = fileTreeContainer?.querySelector('li.pdf-item:first-child');
+                if (newestItem) newestItem.click();
+                else document.getElementById('pdfViewer').src = ""; // žádný soubor
+            } else {
+                alert(result); // chyba serveru
+            }
+        } catch (err) {
+            console.error(err);
+            alert("Chyba při mazání souboru.");
+        }
+    });
+})();
+
 
