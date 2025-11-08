@@ -106,6 +106,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+
 // === FUNKCE ===
 
 // Nahrání PDF
@@ -163,18 +164,15 @@ function uploadPdf() {
             uploadMessage.textContent = "Chyba při nahrávání souboru.";
         });
 }
+
 window.iframe = document.getElementById('pdfViewer');
 
 // Otevření PDF
 function openPdf(filePath) {
     if (!window.iframe) return;
-
-    // Přidání parametrů pro minimalizaci toolbaru (funguje jen v některých prohlížečích)
     const minimalUrl = `${filePath}`;
-
     window.iframe.src = minimalUrl;
 }
-
 
 // PDF strom
 window.activePdfItem = window.activePdfItem || null;
@@ -197,18 +195,15 @@ window.shareButton = document.getElementById("shareBtn");
 window.shareButton.addEventListener("click", async () => {
     const pdfUrl = window.iframe.src;
 
-    // získat název PDF z URL
     const parts = pdfUrl.split('/');
     const fileNameWithExt = parts[parts.length - 1];
     const fileName = fileNameWithExt.replace(/\.pdf$/i, '') || "document";
 
     try {
-        // stáhnout PDF jako blob
         const response = await fetch(pdfUrl);
         const data = await response.blob();
         const file = new File([data], fileName + ".pdf", { type: "application/pdf" });
 
-        // zkusit Web Share API se souborem
         if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
             await navigator.share({
                 title: "Důležité PDF",
@@ -222,7 +217,6 @@ window.shareButton.addEventListener("click", async () => {
     } catch (err) {
         console.warn("Sdílení selhalo, spouštíme stažení:", err.message);
 
-        // fallback: stáhnout PDF pomocí dočasného <a>
         const a = document.createElement("a");
         a.href = pdfUrl;
         a.download = fileName + ".pdf";
@@ -233,12 +227,54 @@ window.shareButton.addEventListener("click", async () => {
 });
 
 // --- Otevřít v novém okně ---
-const openBtn = document.getElementById('openPdfBtn');
-openBtn.addEventListener('click', () => {
+window.openBtn = document.getElementById('openPdfBtn');
+window.openBtn.addEventListener('click', () => {
     const pdfUrl = window.iframe.src;
     if (pdfUrl) {
-        window.open(pdfUrl, '_blank'); // otevře PDF v novém okně/tabu
+        window.open(pdfUrl, '_blank');
     } else {
         console.warn("PDF není načtené");
     }
 });
+
+window.deleteButton = document.getElementById("deleteBtn");
+window.deleteButton.addEventListener("click", async () => {
+    if (!window.activePdfItem) {
+        alert("Nejprve vyberte soubor ke smazání.");
+        return;
+    }
+    const fileName = window.activePdfItem.querySelector('.file-name').textContent;
+    const filePath = window.activePdfItem.getAttribute('data-path');
+
+    if (!confirm(`Opravdu chcete smazat soubor "${fileName}"?`)) return;
+
+    const formData = new FormData();
+    formData.append('file', filePath);
+
+    try {
+        const response = await fetch('includes/delete.php', {
+            method: 'POST',
+            body: formData
+        });
+        const result = await response.text();
+
+        if (result.includes("úspěšně")) {
+            // odstraníme z DOM
+            window.activePdfItem.remove();
+            window.activePdfItem = null;
+
+            // vybrat nejnovější soubor (první v DOM)
+            const fileTreeContainer = document.querySelector('#fileTreeForUpdate ul.pdf-tree');
+            const newestItem = fileTreeContainer.querySelector('li.pdf-item:first-child');
+            if (newestItem) newestItem.click();
+            else document.getElementById('pdfViewer').src = ""; // žádný soubor
+
+        } else {
+            alert(result); // chyba serveru
+        }
+    } catch (err) {
+        console.error(err);
+        alert("Chyba při mazání souboru.");
+    }
+});
+

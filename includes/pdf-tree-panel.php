@@ -8,8 +8,8 @@ extract($panelData);
 ?>
 
 <div id="fileTree">
-    <!-- Tlačítko pro upload PDF -->
     <button id="uploadBtn" class="pdfButton" title="Nahrát PDF">✚</button>
+    <button id="deleteBtn" class="pdfButton" title="Smazat PDF">🗑️</button>
 
     <!-- Panel pro řazení souborů -->
     <div id="fileSort" class="file-sort">
